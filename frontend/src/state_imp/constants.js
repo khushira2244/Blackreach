@@ -1,0 +1,87 @@
+// src/state/constants.js
+
+export const ACTOR = {
+  ADELE: "ADELE",
+  HARRY: "HARRY",
+};
+
+export const APP_MODE = {
+  SECURITY: "SECURITY",
+  COMPANION: "COMPANION",
+};
+
+
+
+export const VIEW = {
+  JOURNEY: "JOURNEY",
+  SCREEN_HOME: "SCREEN_HOME",
+};
+
+export const DEMO_MODE = {
+  NONE: "NONE",
+  WATCH_DEMO: "WATCH_DEMO",
+  LIVE: "LIVE",
+};
+
+export const PHASE = {
+  IDLE: "IDLE",
+  BOOKED: "BOOKED",
+  TRACKING: "TRACKING",
+  IN_ZONE: "IN_ZONE",
+  EMERGENCY: "EMERGENCY",
+  CLOSED: "CLOSED",
+};
+
+export const CASE_STATE = {
+  ACTIVE: "ACTIVE",
+  IN_ZONE: "IN_ZONE",
+  EMERGENCY: "EMERGENCY",
+  RESOLVED: "RESOLVED",
+};
+
+export const CHAT_MODE = {
+  LOCKED: "LOCKED",
+  AI_ACTIVE: "AI_ACTIVE",
+  HUMAN_ACTIVE: "HUMAN_ACTIVE",
+};
+
+// ✅ UPDATED: only 2 checkpoints for your current flow
+export const GEMINI_CHECKPOINT = {
+  SECURITY_AT_GATE: "SECURITY_AT_GATE",
+  SECURITY_500M: "SECURITY_500M",
+};
+
+export const RISK = {
+  GREEN: "GREEN",
+  ORANGE: "ORANGE",
+  RED: "RED",
+};
+
+export const FPS_PROFILE = {
+  LOW: "LOW",
+  MED: "MED",
+  HIGH: "HIGH",
+};
+
+export const SUBCENTER_ADVICE = {
+  ACTIVATE: "ACTIVATE",
+  NONE: "NONE",
+};
+
+export const BOOKING_STEP = {
+  FORM: "FORM",
+  SLIDER: "SLIDER",
+  CONFIRM_READY: "CONFIRM_READY",
+};
+
+export const UI_EVENT = {
+  GO_CLICKED: "GO_CLICKED",
+  SLIDER_CHANGED: "SLIDER_CHANGED",
+  CONFIRM_CLICKED: "CONFIRM_CLICKED",
+  START_TRACKING: "START_TRACKING",
+  ENTER_ZONE: "ENTER_ZONE",
+  RUN_LOOKAHEAD: "RUN_LOOKAHEAD",
+  REQUEST_AI_CHECK: "REQUEST_AI_CHECK",
+  EMERGENCY_CLICKED: "EMERGENCY_CLICKED",
+  RESOLVE: "RESOLVE",
+};

@@ -1,0 +1,53 @@
+{
+  "polyline": "}hfmDsucvMHMROs@yDBOvCeAMe@BQLIJAp@a@N_@b@}A\\}@tAoFF[z@aDbA_Dx@kDk@Yl@wBDYsGoCqCaAH[zCjApQhHdDx@`E`A~Ar@jB`AzBr@tFzBd@TvAh@`@LdBp@xCx@zBj@ZNbCfB`@\\l@`@jD|ClAnAd@t@fEvHtGxLj@t@nDhDjA~ABJlBzA\\\\h@VrBnAb@f@e@RwCPMzKFbAJd@VVZJ|DQz@?",
+  "distance_m": 4343,
+  "duration_s": 891,
+  "areas": [
+    "IIT Campus",
+    "IIT Gate A",
+    "Vijay Mandal Enclave",
+    " IIT Gate B",
+    "Adchini",
+    "Block C",
+    "Qila Rai Pithora",
+    "Seth Sarai"
+  ],
+  "sample_points": [
+    {
+      "lat": 28.54559,
+      "lng": 77.19274
+    },
+    {
+      "lat": 28.54375,
+      "lng": 77.1969
+    },
+    {
+      "lat": 28.54412,
+      "lng": 77.20109
+    },
+    {
+      "lat": 28.54105,
+      "lng": 77.19969
+    },
+    {
+      "lat": 28.53638,
+      "lng": 77.1976
+    },
+    {
+      "lat": 28.53162,
+      "lng": 77.19474
+    },
+    {
+      "lat": 28.52865,
+      "lng": 77.1903
+    },
+    {
+      "lat": 28.52643,
+      "lng": 77.18712
+    },
+    {
+      "lat": 28.52489,
+      "lng": 77.18444
+    }
+  ]
+}

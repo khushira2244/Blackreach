@@ -1,0 +1,99 @@
+.gp {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  background: #000;
+  color: #fff;
+  padding: 14px;
+
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* Header */
+.gp-header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.gp-title {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.gp-sub {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+/* Body */
+.gp-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* Columns */
+.gp-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gp-col-title {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+/* Cards */
+.gp-card {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 12px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gp-label {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+/* Code / JSON block */
+.gp-pre {
+  flex: 1;
+  margin: 0;
+  padding: 10px;
+  border-radius: 10px;
+
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+
+  font-size: 11px;
+  line-height: 1.4;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  color: #d7eaff;
+}
+
+/* Optional visual distinction */
+.gp-input .gp-card {
+  box-shadow: inset 0 0 0 1px rgba(100, 150, 255, 0.15);
+}
+
+.gp-output .gp-card {
+  box-shadow: inset 0 0 0 1px rgba(255, 120, 120, 0.15);
+}

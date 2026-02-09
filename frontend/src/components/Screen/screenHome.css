@@ -1,0 +1,50 @@
+/* screenHome.css */
+
+.screen-home {
+  min-height: 100vh;
+  background: #05070a;
+  padding: 12px;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.home-title {
+  margin: 8px 0 4px;
+  color: #ffffff;
+  font-size: 40px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.gemini-powered {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+
+  font-size: 16px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.gemini-logo {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.gemini-text {
+  color: #dfe8ff;
+}
+
+.screen-section {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 12px;
+  color: #fff;
+  box-sizing: border-box;
+  width: 100%;
+}

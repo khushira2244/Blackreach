@@ -1,0 +1,415 @@
+/* src/components/Screen/Traveller/bookingPanel.css */
+
+/* ─────────────────────────────
+   Layout & Shell
+   ───────────────────────────── */
+
+.bp-shell {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 14px;
+  padding: 14px;
+  color: #e9eef6;
+}
+
+.bp-left {
+}
+
+.bp-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px;
+  backdrop-filter: blur(8px);
+}
+
+.bp-title {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.bp-field {
+  margin-bottom: 12px;
+}
+
+/* ─────────────────────────────
+   Labels & Icons
+   ───────────────────────────── */
+
+.bp-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  opacity: 0.85;
+  margin-bottom: 6px;
+}
+
+.bp-icon {
+  width: 14px;
+  height: 14px;
+  opacity: 0.9;
+}
+
+/* force white icons */
+.bp-icon,
+.bp-badge-ic {
+  filter: invert(1) brightness(2);
+}
+
+/* ─────────────────────────────
+   Inputs
+   ───────────────────────────── */
+
+.bp-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.25);
+  color: #e9eef6;
+  outline: none;
+}
+
+.bp-input:focus {
+  border-color: rgba(0, 255, 200, 0.35);
+}
+
+.bp-coords {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.bp-coord {
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.18);
+  color: #e9eef6;
+  font-size: 12px;
+  outline: none;
+}
+
+/* ─────────────────────────────
+   Buttons & Hints
+   ───────────────────────────── */
+
+.bp-hint {
+  font-size: 12px;
+  opacity: 0.85;
+  margin: 10px 0 12px;
+}
+
+.bp-go {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: none;
+  background: rgba(0, 220, 190, 0.85);
+  color: #061216;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.bp-go:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 255, 200, 0.45);
+  background: rgba(0, 220, 190, 0.95);
+}
+
+/* Secondary (Edit) button used in SLIDER step */
+.bp-secondary {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e9eef6;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.bp-secondary:hover {
+  border-color: rgba(0, 255, 200, 0.22);
+}
+
+.bp-actionsRow {
+  display: grid;
+  grid-template-columns: 1fr 0.35fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* ─────────────────────────────
+   Right Panel / Recents
+   ───────────────────────────── */
+
+.bp-right {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px;
+  backdrop-filter: blur(8px);
+}
+
+.bp-right-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.bp-recents {
+  display: grid;
+  gap: 10px;
+}
+
+.bp-recent {
+  text-align: left;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.22);
+  border-radius: 12px;
+  padding: 12px;
+  color: #e9eef6;
+  cursor: pointer;
+}
+
+.bp-recent:hover {
+  border-color: rgba(0, 255, 200, 0.22);
+}
+
+.bp-recent-title {
+  font-weight: 900;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.bp-recent-sub {
+  font-size: 12px;
+  opacity: 0.78;
+}
+
+.bp-recent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  font-size: 12px;
+  opacity: 0.95;
+}
+
+.bp-badge-ic {
+  width: 14px;
+  height: 14px;
+}
+
+.bp-note {
+  margin-top: 12px;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+/* ─────────────────────────────
+   Summary KPI row (optional)
+   ───────────────────────────── */
+
+.bp-summaryRow {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.bp-kpi {
+  display: inline-flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.bp-kpiLabel {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.bp-kpiValue {
+  font-size: 14px;
+  font-weight: 900;
+}
+
+/* ─────────────────────────────
+   Price Card (optional)
+   ───────────────────────────── */
+
+.bp-priceCard {
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bp-priceTitle {
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.bp-priceLines {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.bp-priceLine {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.bp-priceTotal {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+  font-size: 16px;
+}
+
+.bp-priceHint {
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* ─────────────────────────────
+   VERTICAL SLIDER + ROUTE (FINAL)
+   Needs JSX classes:
+   .bp-sliderBlock, .bp-slider, .bp-routeNodes, .bp-routeNode, .bp-routeDot, .bp-routeLabel
+   ───────────────────────────── */
+
+.bp-sliderBlock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 12px;
+}
+
+/* Vertical slider */
+.bp-slider {
+  -webkit-appearance: none;
+  appearance: none;
+
+  width: 6px;
+  height: 180px;
+
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+
+  outline: none;
+  cursor: pointer;
+  display: block;
+}
+
+/* Firefox vertical */
+.bp-slider[orient="vertical"] {
+  writing-mode: bt-lr;
+}
+
+/* Slider thumb */
+.bp-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+
+  background: #00dcc0;
+  border: 3px solid #0a2e2a;
+
+  cursor: pointer;
+  margin-left: -6px; /* centers thumb on the rail */
+
+  box-shadow: 0 0 0 6px rgba(0, 220, 190, 0.15);
+}
+
+.bp-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+
+  background: #00dcc0;
+  border: 3px solid #0a2e2a;
+
+  cursor: pointer;
+}
+
+/* Route nodes container (line + nodes + labels) */
+.bp-routeNodes {
+  position: relative;
+  display: grid;
+  grid-template-rows: repeat(4, 1fr);
+  gap: 22px;
+  min-height: 180px;
+  padding-left: 20px;
+  align-content: center;
+}
+
+/* Vertical line behind circles */
+.bp-routeNodes::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* Each route point row */
+.bp-routeNode {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Circle on the line */
+.bp-routeDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+/* Label beside circle */
+.bp-routeLabel {
+  font-size: 14px;
+  color: #e9eef6;
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
+/* Start of security zone */
+.bp-routeNode.security .bp-routeDot {
+  background: rgba(255, 140, 0, 0.9);
+}
+
+/* Selected location (RED) */
+.bp-routeNode.active .bp-routeDot {
+  background: rgba(255, 80, 80, 0.95);
+  box-shadow: 0 0 0 6px rgba(255, 80, 80, 0.15);
+}
+
+.bp-routeNode.active .bp-routeLabel {
+  color: rgba(255, 120, 120, 1);
+  font-weight: 800;
+  opacity: 1;
+}

@@ -1,0 +1,184 @@
+/* src/components/Traveller/inZonePanel.css */
+
+.izp {
+  height: 100%;
+  width: 100%;
+  background: #000;
+  color: #fff;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  padding: 16px;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* Header */
+.izp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.izp-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.izp-badge {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.22);
+}
+
+.izp-icons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.izp-iconBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+.izp-iconBtn:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.izp-eye {
+  width: 20px;
+  height: 20px;
+  opacity: 0.95;
+}
+
+.izp-iconBtn--danger {
+  background: rgba(217, 0, 0, 0.18);
+  border: 1px solid rgba(217, 0, 0, 0.55);
+}
+
+.izp-iconBtn--danger:hover {
+  background: rgba(217, 0, 0, 0.26);
+}
+
+.izp-siren {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #d90000;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 900;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Chat */
+.izp-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 6px;
+}
+
+.izp-msg {
+  display: flex;
+}
+
+.izp-ai {
+  justify-content: flex-start;
+}
+
+.izp-user {
+  justify-content: flex-end;
+}
+
+.izp-bubble {
+  max-width: 92%;
+  font-size: 13px;
+  line-height: 1.45;
+
+  padding: 10px 12px;
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* User bubble style */
+.izp-user .izp-bubble {
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+/* ✅ Quick replies (separate row with spacing from the question) */
+.izp-quickRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  margin-top: 6px;
+  margin-left: 12px; /* space from "Are you ok?" bubble */
+}
+
+.izp-chip {
+  user-select: none;
+  cursor: pointer;
+
+  font-size: 12px;
+  font-weight: 750;
+
+  padding: 7px 14px;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.izp-chip:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Make YES a bit more “primary” */
+.izp-chip {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+.izp-chip--danger {
+  background: rgba(217, 0, 0, 0.18);
+  border: 1px solid rgba(217, 0, 0, 0.50);
+}
+
+.izp-chip--danger:hover {
+  background: rgba(217, 0, 0, 0.26);
+}
+
+/* Footer */
+.izp-foot {
+  margin-top: auto;
+  font-size: 11px;
+  opacity: 0.6;
+}
