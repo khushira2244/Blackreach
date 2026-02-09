@@ -114,3 +114,52 @@ You can test:
 /lookahead/500m
 
 /gemini/run/{bookingId}
+
+
+Frontend Setup & Run (Vite)
+
+The Blackreach frontend is a pure Vite + React application.
+
+For demo purposes, no environment variables are required. All API endpoints are either:
+
+Proxied to the local backend, or
+
+Safely hardcoded for demo reliability
+
+This ensures a smooth experience for demos, judges, and reviewers.
+
+Prerequisites
+
+Make sure you have the following installed:
+
+Node.js 18+
+
+npm
+
+Setup Instructions
+1. Enter the Frontend Directory
+cd frontend
+
+2. Install Dependencies
+npm install
+
+3. Run the Frontend (Vite Dev Server)
+npm run dev
+
+
+Vite will start the development server at:
+
+http://localhost:5173
+
+Backend Connection (No Environment Variables)
+
+The frontend does not use .env files
+
+All API calls assume the backend is running at:
+
+http://localhost:8000
+
+
+During development, Vite automatically proxies API requests to the backend.
+
+This design intentionally avoids setup friction and configuration error
