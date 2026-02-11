@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from integrations.firebase_admin import init_firebase
-from firebase_admin import db
+from integrations.firebase_admin import db
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 

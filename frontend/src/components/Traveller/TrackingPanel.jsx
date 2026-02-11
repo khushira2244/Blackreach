@@ -55,7 +55,7 @@ function TrackingPanelLoaded({ plan }) {
   const areas = plan.areas || [];
 
   // ✅ Slow down in-zone a bit (demo-friendly)
-  const tickMs = phase === PHASE.IN_ZONE ? 7000 : 4000;
+  const tickMs = phase === PHASE.IN_ZONE ? 12000 : 4000;
 
   const sim = useTrackingSim({
     state,

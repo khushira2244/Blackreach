@@ -1,5 +1,4 @@
-# integrations/gemini_vertex_video.py
-
+import base64
 import json
 import os
 from typing import Any, Dict, List, Optional
@@ -27,18 +26,38 @@ def _video_fallback() -> Dict[str, Any]:
 
 def generate_video_emergency_response(context_json: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Video-only Gemini call (separate from vigilant worker).
+    Video-only Gemini call via Vertex AI.
     Returns:
       { isEmergency: bool, confidence: float(0..1), signals: [str], summary: str }
     """
 
-    project_id = _get_env("GOOGLE_CLOUD_PROJECT")
-    location = _get_env("GOOGLE_CLOUD_LOCATION", "asia-south1")
-    model = _get_env("GEMINI_MODEL", "gemini-2.5-flash")
+    # ------------------------
+    # ENV
+    # ------------------------
+    # project_id = _get_env("GOOGLE_CLOUD_PROJECT")
+    # location = "asia-south1"  # hardcoded working location
+    # model = "gemini-2.0-flash"  # hardcoded working model
 
-    # IMPORTANT: use your own variable (does NOT touch Firebase)
+
+    project_id = _get_env("GOOGLE_CLOUD_PROJECT")
+    location = "us-central1"          # hardcoded region (recommended)
+    model = "gemini-2.0-flash" 
+
+   # hardcoded working model
+
+
+    # ------------------------
+    # FIXED AUTH (IMPORTANT)
+    # ------------------------
     sa_path = _get_env("VERTEX_SA_PATH")
-    creds = service_account.Credentials.from_service_account_file(sa_path)
+
+    creds = service_account.Credentials.from_service_account_file(
+        sa_path,
+        scopes=["https://www.googleapis.com/auth/cloud-platform"],
+    )
+
+    # important for billing / token audience
+    creds = creds.with_quota_project(project_id)
 
     client = genai.Client(
         vertexai=True,
@@ -47,6 +66,9 @@ def generate_video_emergency_response(context_json: Dict[str, Any]) -> Dict[str,
         credentials=creds,
     )
 
+    # ------------------------
+    # RESPONSE SCHEMA
+    # ------------------------
     response_schema: Dict[str, Any] = {
         "type": "object",
         "properties": {
@@ -61,22 +83,56 @@ def generate_video_emergency_response(context_json: Dict[str, Any]) -> Dict[str,
 
     system_instruction = """
 You are a VIDEO EMERGENCY CLASSIFIER.
-Use ONLY the provided frames + note. Do NOT use any route/chat/tracking info.
-Output ONLY JSON matching the schema.
+Use ONLY the provided frames + note.
+Do NOT use route/chat/tracking information.
+Return ONLY valid JSON matching the schema.
 
-Emergency = visible immediate harm, assault, fire/smoke, weapon threat, severe distress, unconsciousness, blood, accident.
+Emergency = visible immediate harm, assault, fire/smoke, weapon threat,
+severe distress, unconsciousness, blood, accident.
+
 If unclear, set isEmergency=false and confidence low.
-signals = short keywords like: ["weapon_visible","assault","blood","fire_smoke","panic_run","crowd_fleeing","unconscious"]
+signals = short keywords.
 """
 
-    payload_str = json.dumps(context_json, ensure_ascii=False)
+    # ------------------------
+    # BUILD IMAGE PARTS
+    # ------------------------
+    video = (context_json or {}).get("video") or {}
+    frames = video.get("frames") or []
 
-    contents = [
-        types.Content(
-            role="user",
-            parts=[types.Part(text=f"Context JSON:\n{payload_str}\n\nReturn JSON now.")],
+    parts: List[types.Part] = []
+
+    # 1) Add images first
+    for f in frames[:6]:
+        b64 = (f.get("data_b64") or "").strip()
+        if not b64:
+            continue
+
+        # remove accidental data URL prefix
+        if b64.startswith("data:image"):
+            b64 = b64.split(",", 1)[-1].strip()
+
+        try:
+            img_bytes = base64.b64decode(b64)  # safe decode
+        except Exception:
+            continue
+
+        mime = f.get("mimeType") or "image/jpeg"
+
+        parts.append(
+            types.Part(
+                inline_data=types.Blob(
+                    mime_type=mime,
+                    data=img_bytes,
+                )
+            )
         )
-    ]
+
+    # 2) Add text instruction
+    prompt = json.dumps(context_json, ensure_ascii=False)
+    parts.append(types.Part(text=prompt))
+
+    contents = [types.Content(role="user", parts=parts)]
 
     config = types.GenerateContentConfig(
         temperature=0.1,
@@ -87,10 +143,22 @@ signals = short keywords like: ["weapon_visible","assault","blood","fire_smoke",
         system_instruction=system_instruction,
     )
 
+    # ------------------------
+    # CALL GEMINI
+    # ------------------------
     try:
-        resp = client.models.generate_content(model=model, contents=contents, config=config)
-    except Exception:
-        return _video_fallback()
+        resp = client.models.generate_content(
+            model=model,
+            contents=contents,
+            config=config,
+        )
+    except Exception as e:
+        return {
+            "isEmergency": False,
+            "confidence": 0.2,
+            "signals": ["video_analysis_failed"],
+            "summary": f"Gemini call failed: {repr(e)[:300]}",
+        }
 
     text = getattr(resp, "text", None)
     if not text:
@@ -101,12 +169,15 @@ signals = short keywords like: ["weapon_visible","assault","blood","fire_smoke",
     except Exception:
         return _video_fallback()
 
-    # guardrails
+    # ------------------------
+    # GUARDRAILS
+    # ------------------------
     is_em = bool(data.get("isEmergency"))
     try:
         conf = float(data.get("confidence", 0.0))
     except Exception:
         conf = 0.0
+
     conf = max(0.0, min(1.0, conf))
 
     sig = data.get("signals")
@@ -119,4 +190,9 @@ signals = short keywords like: ["weapon_visible","assault","blood","fire_smoke",
         summ = str(summ)
     summ = summ.strip()[:500]
 
-    return {"isEmergency": is_em, "confidence": conf, "signals": sig, "summary": summ}
+    return {
+        "isEmergency": is_em,
+        "confidence": conf,
+        "signals": sig,
+        "summary": summ,
+    }
