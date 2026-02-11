@@ -1,8 +1,30 @@
 // src/components/Traveller/InZonePanel.jsx
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./inZonePanel.css";
 import { useApp } from "../../state_imp/AppContext";
 import { PHASE } from "../../state_imp/constants";
+
+async function loadDemoFrameBase64() {
+  // file location: frontend/public/demo/demo_frame.txt
+  const res = await fetch("/demo/demo_frame.txt");
+  if (!res.ok) throw new Error("Failed to load demo frame (/demo/demo_frame.txt)");
+  const txt = await res.text();
+  return (txt || "").trim();
+}
+
+async function postVideoEmergencyDemo({ fpsRate, note, store, frames }) {
+  const res = await fetch("http://localhost:8000/video/emergency-demo", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ fpsRate, note, store, frames }),
+  });
+
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(`POST /video/emergency-demo failed (${res.status}) ${txt}`);
+  }
+  return await res.json();
+}
 
 export default function InZonePanel() {
   const { state, actions } = useApp();
@@ -22,80 +44,30 @@ export default function InZonePanel() {
   const riskColor = (ai?.riskColor || ai?.risk || "").toUpperCase();
   const fpsProfile = (ai?.fpsProfile || "").toUpperCase();
 
-  // ✅ Hard-coded note + store (still shown in UI)
-  const liveEyeNote = "BLACKREACH_LIVEEYE_DEMO_CLIP";
-  const liveEyeStore = true;
+  // (Still shown in UI)
+  const liveEyeNote = "BLACKREACH_LIVEEYE_DEMO_FRAME";
+  const liveEyeStore = false;
 
-  // ✅ Hard-coded YouTube WATCH URL (more reliable than shorts)
-  const LIVE_EYE_VIDEO_URL = "https://www.youtube.com/watch?v=FYt1Dqn9Lx0";
-
-  // Green: 15, Orange: 24, Red: 30, default: 30
-  const fpsRate = useMemo(() => {
+  // (For hint only — backend payload uses fpsRate: 1 in this demo)
+  const fpsRateHint = useMemo(() => {
     if (riskColor === "GREEN") return 15;
     if (riskColor === "ORANGE") return 24;
     if (riskColor === "RED") return 30;
     return 30;
   }, [riskColor]);
 
-  // LiveEye demo upload (kept but optional)
-  const fileInputRef = useRef(null);
-  const [liveEyeFile, setLiveEyeFile] = useState(null);
-  const [liveEyeUrl, setLiveEyeUrl] = useState("");
-
-  // Local status for LiveEye "analysis" (NO BACKEND CALL)
+  // Local status for LiveEye "analysis"
   const [videoStatus, setVideoStatus] = useState("IDLE"); // IDLE | UPLOADING | DONE | ERROR
   const [videoResult, setVideoResult] = useState(null);
   const [videoError, setVideoError] = useState("");
 
-  // ✅ Change LiveEye click behavior:
-  // Instead of opening file picker, simulate a "virtual selection" from YouTube
-  const openLiveEyePicker = () => {
-    setVideoStatus("IDLE");
-    setVideoResult(null);
+  // ✅ LiveEye click behavior:
+  // Loads demo frame base64 from public folder and calls backend.
+ const openLiveEyePicker = async () => {
+  try {
+    setVideoStatus("UPLOADING");
     setVideoError("");
-
-    // Trigger flow
-    setLiveEyeFile({ name: "YouTube Demo Clip", __kind: "URL" });
-    setLiveEyeUrl(LIVE_EYE_VIDEO_URL); // used for preview (iframe)
-  };
-
-  // (kept but unused now — you can remove later)
-  const onPickLiveEyeFile = (e) => {
-    const f = e.target.files && e.target.files[0];
-    if (!f) return;
-
-    if (!f.type || !f.type.startsWith("video/")) {
-      alert("Please select a video file (mp4/mov/webm).");
-      e.target.value = "";
-      return;
-    }
-
-    setVideoStatus("IDLE");
     setVideoResult(null);
-    setVideoError("");
-
-    setLiveEyeFile(f);
-  };
-
-  // Create preview URL for local file ONLY
-  useEffect(() => {
-    if (!liveEyeFile) return;
-
-    // ✅ If our "virtual selection" is URL-based, do nothing here.
-    if (liveEyeFile.__kind === "URL") return;
-
-    const url = URL.createObjectURL(liveEyeFile);
-    setLiveEyeUrl(url);
-
-    return () => {
-      URL.revokeObjectURL(url);
-    };
-  }, [liveEyeFile]);
-
-  // ✅ NO BACKEND CALL:
-  // When LiveEye triggers, we simulate a decision and (optionally) flip to EMERGENCY.
-  useEffect(() => {
-    if (!liveEyeFile) return;
 
     if (!bookingId) {
       setVideoStatus("ERROR");
@@ -103,75 +75,51 @@ export default function InZonePanel() {
       return;
     }
 
-    let cancelled = false;
+    const rawBase64 = await loadDemoFrameBase64();
+    if (!rawBase64) throw new Error("demo_frame.txt is empty");
 
-    async function runLocalLiveEyeDecision() {
-      try {
-        setVideoStatus("UPLOADING");
-        setVideoError("");
-        setVideoResult(null);
+    const result = await postVideoEmergencyDemo({
+      fpsRate: 1,
+      note: "User pressed emergency check",
+      store: false,
+      frames: [{ data_b64: rawBase64 }],
+    });
 
-        // ⏳ small delay so UI feels real
-        await new Promise((r) => setTimeout(r, 1200));
-        if (cancelled) return;
+    // ✅ NEW: save to global state for GeminiPanel / other UI
+    actions.setGeminiVideoLatest(result);
 
-        // ✅ LOCAL MOCK RESULT (no API, no backend dependency)
-        const mockResult = {
-          recommendedAction: "TRIGGER_EMERGENCY",
-          isEmergency: true,
-          confidence: 0.87,
-          summary: "LiveEye demo decision (local). Escalating to emergency mode.",
-          note: liveEyeNote,
-          store: liveEyeStore,
-          source: "LOCAL_DEMO",
-        };
+    setVideoResult(result);
+    setVideoStatus("DONE");
 
-        setVideoResult(mockResult);
-        setVideoStatus("DONE");
+    const shouldTriggerEmergency =
+      result?.recommendedAction === "TRIGGER_EMERGENCY" ||
+      result?.isEmergency === true ||
+      (typeof result?.confidence === "number" && result.confidence >= 0.6);
 
-        // ✅ This is the only global state effect we need
-        const shouldTriggerEmergency =
-          mockResult?.recommendedAction === "TRIGGER_EMERGENCY" ||
-          mockResult?.isEmergency === true ||
-          (typeof mockResult?.confidence === "number" && mockResult.confidence >= 0.6);
-
-        if (shouldTriggerEmergency) {
-          actions.setPhase(PHASE.EMERGENCY);
-        }
-      } catch (err) {
-        if (cancelled) return;
-        setVideoStatus("ERROR");
-        setVideoError("LiveEye demo failed");
-      }
+    if (shouldTriggerEmergency) {
+      actions.setPhase(PHASE.EMERGENCY);
     }
+  } catch (err) {
+    setVideoStatus("ERROR");
+    setVideoError(err?.message || "LiveEye failed");
+  }
+};
 
-    runLocalLiveEyeDecision();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [liveEyeFile, bookingId, actions, liveEyeNote, liveEyeStore]);
 
   const liveEyeHint = useMemo(() => {
     const parts = [];
     if (riskColor) parts.push(`Risk: ${riskColor}`);
     if (fpsProfile) parts.push(`FPS profile: ${fpsProfile}`);
-    parts.push(`LiveEye FPS: ${fpsRate}`);
+    parts.push(`LiveEye FPS: 1 (demo frame)`);
+    parts.push(`(hint: ${fpsRateHint})`);
     return parts.join(" • ");
-  }, [riskColor, fpsProfile, fpsRate]);
+  }, [riskColor, fpsProfile, fpsRateHint]);
 
   const manualEmergency = () => {
     actions.setPhase(PHASE.EMERGENCY);
   };
 
-  // ✅ YouTube embed url for preview
-  const ytEmbedUrl = useMemo(() => {
-    const m = LIVE_EYE_VIDEO_URL.match(/[?&]v=([^&]+)/);
-    const id = m?.[1] || "";
-    return id ? `https://www.youtube.com/embed/${id}` : "";
-  }, [LIVE_EYE_VIDEO_URL]);
-
-  // ✅ NEW: Emergency UI inside InZonePanel
+  // ✅ Emergency UI inside InZonePanel
   if (phase === PHASE.EMERGENCY) {
     return (
       <aside className="izp">
@@ -190,6 +138,25 @@ export default function InZonePanel() {
           <div style={{ fontSize: 13, opacity: 0.9, lineHeight: 1.5, marginTop: 10 }}>
             Don’t worry — help is on the way.
           </div>
+
+          {videoResult && (
+            <div style={{ marginTop: 12, fontSize: 12, opacity: 0.85, lineHeight: 1.5 }}>
+              <div>
+                Decision:{" "}
+                <b>
+                  {videoResult?.recommendedAction ||
+                    (videoResult?.isEmergency ? "TRIGGER_EMERGENCY" : "NONE")}
+                </b>
+              </div>
+              <div>
+                confidence:{" "}
+                {typeof videoResult?.confidence === "number"
+                  ? videoResult.confidence.toFixed(2)
+                  : "—"}
+              </div>
+              {videoResult?.summary && <div style={{ marginTop: 6 }}>{videoResult.summary}</div>}
+            </div>
+          )}
         </div>
 
         <div className="izp-foot">Blackreach • Traveller</div>
@@ -199,15 +166,6 @@ export default function InZonePanel() {
 
   return (
     <aside className="izp">
-      {/* (kept but hidden/unused now) */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="video/*"
-        style={{ display: "none" }}
-        onChange={onPickLiveEyeFile}
-      />
-
       {/* Header */}
       <div className="izp-header">
         <div className="izp-title">
@@ -222,12 +180,12 @@ export default function InZonePanel() {
             type="button"
             aria-label="LiveEye"
             onClick={openLiveEyePicker}
-            title="LiveEye (Local Demo — No Backend)"
+            title="LiveEye (Gemini-backed decision)"
           >
             <img src="/demo/icons/eye_icon.svg" alt="LiveEye" className="izp-eye" />
           </button>
 
-          {/* Emergency */}
+          {/* Emergency (manual override) */}
           <button
             className="izp-iconBtn izp-iconBtn--danger"
             type="button"
@@ -289,8 +247,8 @@ export default function InZonePanel() {
 
             <div className="izp-msg izp-ai">
               <div className="izp-bubble">
-                If anything feels wrong, press <b>LiveEye</b>. If you can’t go LiveEye,
-                press <b>Emergency</b>.
+                If anything feels wrong, press <b>LiveEye</b>. If you can’t go LiveEye, press{" "}
+                <b>Emergency</b>.
               </div>
             </div>
           </>
@@ -299,27 +257,21 @@ export default function InZonePanel() {
         {answer === "NO" && (
           <div className="izp-msg izp-ai">
             <div className="izp-bubble">
-              Press <b>LiveEye</b> for recording. If you can’t press LiveEye, press{" "}
+              Press <b>LiveEye</b> for verification. If you can’t press LiveEye, press{" "}
               <b>Emergency</b>.
             </div>
           </div>
         )}
 
-        {/* LiveEye analysis feedback */}
-        {liveEyeFile && (
+        {/* LiveEye feedback */}
+        {videoStatus !== "IDLE" && (
           <>
             <div className="izp-msg izp-user">
               <div className="izp-bubble">
-                LiveEye source: <b>YouTube Demo Clip</b>
+                LiveEye started
                 <div style={{ fontSize: 12, opacity: 0.75, marginTop: 6 }}>
                   bookingId: {bookingId || "—"} • note: {liveEyeNote}
                 </div>
-              </div>
-            </div>
-
-            <div className="izp-msg izp-ai">
-              <div className="izp-bubble">
-                LiveEye started ({fpsRate} FPS). Running local emergency decision…
               </div>
             </div>
 
@@ -331,7 +283,7 @@ export default function InZonePanel() {
 
             {videoStatus === "ERROR" && (
               <div className="izp-msg izp-ai">
-                <div className="izp-bubble">❌ Video analysis failed: {videoError}</div>
+                <div className="izp-bubble">❌ LiveEye failed: {videoError}</div>
               </div>
             )}
 
@@ -355,20 +307,6 @@ export default function InZonePanel() {
                     </div>
                   )}
                 </div>
-              </div>
-            )}
-
-            {/* ✅ YouTube preview must be iframe, not <video> */}
-            {ytEmbedUrl && (
-              <div className="izp-videoWrap">
-                <iframe
-                  className="izp-video"
-                  src={ytEmbedUrl}
-                  title="LiveEye YouTube Preview"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
               </div>
             )}
           </>

@@ -37,6 +37,8 @@ export const ACTIONS = {
   LIVE_UPDATED: "LIVE_UPDATED",
   LOOKAHEAD_UPDATED: "LOOKAHEAD_UPDATED",
   AI_UPDATED: "AI_UPDATED",
+  GEMINI_VIDEO_UPDATED: "GEMINI_VIDEO_UPDATED",
+
 
   // Control actions
   SET_ACTIVE_SLICE_INDEX: "SET_ACTIVE_SLICE_INDEX",
@@ -277,6 +279,21 @@ export function reducer(state, action) {
           ...state.data,
           ai: {
             ...state.data.ai, // keep lastInput
+            latest,
+          },
+        },
+      };
+    }
+
+        // ✅ NEW: store LiveEye / Gemini video emergency result
+    case ACTIONS.GEMINI_VIDEO_UPDATED: {
+      const latest = action.payload ?? null;
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          geminiVideo: {
+            ...state.data.geminiVideo,
             latest,
           },
         },

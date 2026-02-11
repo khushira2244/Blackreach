@@ -75,6 +75,11 @@ export const initialState = {
 
     ai: {
       latest: null,
+          // ✅ NEW: Gemini Video Emergency output (LiveEye)
+    geminiVideo: {
+      latest: null, // backend response from POST /video/emergency-demo
+    },
+
     },
 
     subcenter: {

@@ -97,3 +97,18 @@
 .gp-output .gp-card {
   box-shadow: inset 0 0 0 1px rgba(255, 120, 120, 0.15);
 }
+
+.gp-chip{
+  display:inline-flex;
+  align-items:center;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.gp-chip--danger{
+  background: rgba(255, 80, 80, 0.12);
+  border-color: rgba(255, 80, 80, 0.25);
+}

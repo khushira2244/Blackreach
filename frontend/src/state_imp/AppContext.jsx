@@ -51,7 +51,8 @@ export function AppProvider({ children }) {
       // Global journey plan
       setPlan: (plan) =>
         dispatch({ type: ACTIONS.SET_PLAN, payload: plan }),
-
+      setGeminiVideoLatest: (payload) =>
+        dispatch({ type: ACTIONS.GEMINI_VIDEO_UPDATED, payload }),
       // Controls
       setActiveSliceIndex: (idx) =>
         dispatch({ type: ACTIONS.SET_ACTIVE_SLICE_INDEX, payload: idx }),

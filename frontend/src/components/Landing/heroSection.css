@@ -1,0 +1,78 @@
+.hero {
+  background: #000;
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 0 6%;
+}
+
+.hero-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.hero-left {
+  max-width: 550px;
+}
+
+.hero-title {
+  font-size: 64px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -1px;
+}
+
+.hero-powered {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.hero-gemini-logo {
+  width: 20px;
+  height: 20px;
+}
+
+.hero-description {
+  margin-top: 30px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #cfcfcf;
+}
+
+.hero-button {
+  margin-top: 35px;
+  padding: 14px 28px;
+  background: #5a5cff;
+  color: #fff;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.hero-button:hover {
+  background: #7b7dff;
+  transform: translateY(-2px);
+}
+
+.hero-right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.hero-image {
+  width: 500px;
+  max-width: 100%;
+  border-radius: 14px;
+  box-shadow: 0 30px 80px rgba(90, 92, 255, 0.2);
+}

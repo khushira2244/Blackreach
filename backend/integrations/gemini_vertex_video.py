@@ -1,3 +1,4 @@
+# integrations/gemini_vertex_video.py
 import base64
 import json
 import os
@@ -15,49 +16,72 @@ def _get_env(name: str, default: Optional[str] = None) -> str:
     return val
 
 
-def _video_fallback() -> Dict[str, Any]:
-    return {
-        "isEmergency": False,
-        "confidence": 0.2,
-        "signals": ["uncertain_visual_context"],
-        "summary": "Unable to determine a clear emergency from the provided frames.",
-    }
+def _guess_mime(b64: str) -> str:
+    head = (b64 or "")[:10]
+    if head.startswith("/9j/"):
+        return "image/jpeg"
+    if head.startswith("iVBORw0"):
+        return "image/png"
+    return "image/jpeg"
 
 
-def generate_video_emergency_response(context_json: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Video-only Gemini call via Vertex AI.
-    Returns:
-      { isEmergency: bool, confidence: float(0..1), signals: [str], summary: str }
-    """
+def _strip_data_prefix(b64: str) -> str:
+    if not b64:
+        return b64
+    if "base64," in b64:
+        return b64.split("base64,", 1)[1]
+    return b64
 
-    # ------------------------
-    # ENV
-    # ------------------------
-    # project_id = _get_env("GOOGLE_CLOUD_PROJECT")
-    # location = "asia-south1"  # hardcoded working location
-    # model = "gemini-2.0-flash"  # hardcoded working model
 
+def _safe_json_parse(s: str):
+    if not s or not isinstance(s, str):
+        return None
+    s = s.strip()
+    if not s:
+        return None
+
+    # Find first complete JSON object {...} anywhere in the text
+    start = s.find("{")
+    if start != -1:
+        depth = 0
+        for i in range(start, len(s)):
+            ch = s[i]
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    candidate = s[start : i + 1].strip()
+                    try:
+                        return json.loads(candidate)
+                    except Exception:
+                        break
+    return None
+
+
+def generate_video_emergency_response(context: Dict[str, Any]) -> Dict[str, Any]:
+    def _video_fallback() -> Dict[str, Any]:
+        return {
+            "isEmergency": False,
+            "confidence": 0.2,
+            "signals": ["uncertain_visual_context"],
+            "summary": "Unable to determine a clear emergency from the provided frames.",
+        }
+
+    video = context.get("video") or {}
+    frames = video.get("frames") or []
+    if not isinstance(frames, list) or len(frames) == 0:
+        return _video_fallback()
 
     project_id = _get_env("GOOGLE_CLOUD_PROJECT")
-    location = "us-central1"          # hardcoded region (recommended)
-    model = "gemini-2.0-flash" 
+    location =  "global"  
+    model =  "gemini-3-flash-preview" 
 
-   # hardcoded working model
-
-
-    # ------------------------
-    # FIXED AUTH (IMPORTANT)
-    # ------------------------
     sa_path = _get_env("VERTEX_SA_PATH")
-
     creds = service_account.Credentials.from_service_account_file(
         sa_path,
         scopes=["https://www.googleapis.com/auth/cloud-platform"],
-    )
-
-    # important for billing / token audience
-    creds = creds.with_quota_project(project_id)
+    ).with_quota_project(project_id)
 
     client = genai.Client(
         vertexai=True,
@@ -66,133 +90,89 @@ def generate_video_emergency_response(context_json: Dict[str, Any]) -> Dict[str,
         credentials=creds,
     )
 
-    # ------------------------
-    # RESPONSE SCHEMA
-    # ------------------------
-    response_schema: Dict[str, Any] = {
-        "type": "object",
-        "properties": {
-            "isEmergency": {"type": "boolean"},
-            "confidence": {"type": "number"},
-            "signals": {"type": "array", "items": {"type": "string"}},
-            "summary": {"type": "string"},
-        },
-        "required": ["isEmergency", "confidence", "signals", "summary"],
-        "additionalProperties": False,
-    }
+    # ✅ Keep text SHORT. Do NOT dump full context JSON.
+    note = (context.get("note") or "")[:250]
+    fps = context.get("fpsRate")
+    frame_count = len(frames)
 
-    system_instruction = """
-You are a VIDEO EMERGENCY CLASSIFIER.
-Use ONLY the provided frames + note.
-Do NOT use route/chat/tracking information.
-Return ONLY valid JSON matching the schema.
+    user_prompt = f"""
+You are an emergency classifier for a personal safety system.
 
-Emergency = visible immediate harm, assault, fire/smoke, weapon threat,
-severe distress, unconsciousness, blood, accident.
+Return ONLY a JSON object (no markdown, no backticks, no extra words) with EXACT keys:
+{{
+  "isEmergency": true/false,
+  "confidence": 0..1,
+  "signals": ["short_tag", ...],
+  "summary": "short"
+}}
 
-If unclear, set isEmergency=false and confidence low.
-signals = short keywords.
-"""
+Decision rules:
+- If clear violence / injury / restraint / severe distress / threat -> isEmergency=true
+- If normal selfie / unclear -> isEmergency=false (confidence low)
 
-    # ------------------------
-    # BUILD IMAGE PARTS
-    # ------------------------
-    video = (context_json or {}).get("video") or {}
-    frames = video.get("frames") or []
+Context: fpsRate={fps}, frameCount={frame_count}, note="{note}"
+NOW RETURN JSON ONLY.
+""".strip()
 
-    parts: List[types.Part] = []
+    parts: List[types.Part] = [types.Part(text=user_prompt)]
 
-    # 1) Add images first
-    for f in frames[:6]:
-        b64 = (f.get("data_b64") or "").strip()
+    # Add images
+    for f in frames[:6]:  # ✅ fewer frames = more output space
+        b64 = _strip_data_prefix((f or {}).get("data_b64") or "")
         if not b64:
             continue
-
-        # remove accidental data URL prefix
-        if b64.startswith("data:image"):
-            b64 = b64.split(",", 1)[-1].strip()
-
         try:
-            img_bytes = base64.b64decode(b64)  # safe decode
+            img_bytes = base64.b64decode(b64)
         except Exception:
             continue
+        mime = _guess_mime(b64)
+        parts.append(types.Part(inline_data=types.Blob(mime_type=mime, data=img_bytes)))
 
-        mime = f.get("mimeType") or "image/jpeg"
-
-        parts.append(
-            types.Part(
-                inline_data=types.Blob(
-                    mime_type=mime,
-                    data=img_bytes,
-                )
-            )
-        )
-
-    # 2) Add text instruction
-    prompt = json.dumps(context_json, ensure_ascii=False)
-    parts.append(types.Part(text=prompt))
+    if len(parts) == 1:
+        return _video_fallback()
 
     contents = [types.Content(role="user", parts=parts)]
 
     config = types.GenerateContentConfig(
-        temperature=0.1,
+        temperature=0.0,
+        max_output_tokens=512,  # ✅ give room for JSON
         top_p=0.9,
-        max_output_tokens=300,
-        response_mime_type="application/json",
-        response_schema=response_schema,
-        system_instruction=system_instruction,
     )
 
-    # ------------------------
-    # CALL GEMINI
-    # ------------------------
     try:
-        resp = client.models.generate_content(
-            model=model,
-            contents=contents,
-            config=config,
-        )
+        resp = client.models.generate_content(model=model, contents=contents, config=config)
+
+        # ✅ Extract text from candidates (more reliable than resp.text for preview models)
+        raw_text = ""
+        try:
+            cand = resp.candidates[0]
+            raw_text = "".join(
+                [getattr(p, "text", "") for p in cand.content.parts if getattr(p, "text", None)]
+            ).strip()
+        except Exception:
+            raw_text = (getattr(resp, "text", "") or "").strip()
+
+        data = _safe_json_parse(raw_text)
+
+        if not data:
+            return {
+                "isEmergency": False,
+                "confidence": 0.2,
+                "signals": ["debug_no_json"],
+                "summary": f"Gemini returned non-JSON. raw_text={repr(raw_text)[:800]}",
+            }
+
+        # ✅ minimal guardrails
+        data.setdefault("isEmergency", False)
+        data.setdefault("confidence", 0.2)
+        data.setdefault("signals", ["model_output"])
+        data.setdefault("summary", "ok")
+        return data
+
     except Exception as e:
         return {
             "isEmergency": False,
             "confidence": 0.2,
             "signals": ["video_analysis_failed"],
-            "summary": f"Gemini call failed: {repr(e)[:300]}",
+            "summary": f"Gemini call failed: {type(e).__name__}: {str(e)[:240]}",
         }
-
-    text = getattr(resp, "text", None)
-    if not text:
-        return _video_fallback()
-
-    try:
-        data = json.loads(text)
-    except Exception:
-        return _video_fallback()
-
-    # ------------------------
-    # GUARDRAILS
-    # ------------------------
-    is_em = bool(data.get("isEmergency"))
-    try:
-        conf = float(data.get("confidence", 0.0))
-    except Exception:
-        conf = 0.0
-
-    conf = max(0.0, min(1.0, conf))
-
-    sig = data.get("signals")
-    if not isinstance(sig, list):
-        sig = []
-    sig = [str(s).strip()[:40] for s in sig if str(s).strip()][:10]
-
-    summ = data.get("summary")
-    if not isinstance(summ, str):
-        summ = str(summ)
-    summ = summ.strip()[:500]
-
-    return {
-        "isEmergency": is_em,
-        "confidence": conf,
-        "signals": sig,
-        "summary": summ,
-    }

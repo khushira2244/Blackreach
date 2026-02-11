@@ -1,0 +1,75 @@
+.ts {
+  background: #000;
+  color: #fff;
+  padding: 84px 20px 96px;
+}
+
+.ts-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ts-title {
+  font-size: 44px;
+  font-weight: 850;
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
+}
+
+.ts-sub {
+  max-width: 860px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 18px;
+  line-height: 1.6;
+  margin: 0 0 30px;
+}
+
+.ts-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.ts-card {
+  border-radius: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.ts-logoWrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  display: grid;
+  place-items: center;
+  margin-bottom: 14px;
+}
+
+.ts-logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.ts-cardTitle {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.ts-cardSub {
+  color: rgba(255, 255, 255, 0.70);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+@media (max-width: 980px) {
+  .ts-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 620px) {
+  .ts-grid { grid-template-columns: 1fr; }
+}
