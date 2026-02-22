@@ -1,111 +1,186 @@
-Backend Setup & Running Instructions
+
+📘 Blackreach
+What is Blackreach?
+
+Blackreach is a real-time contextual safety system designed for moments where GPS tracking alone is not enough.
+
+
+<img width="1895" height="942" alt="image" src="https://github.com/user-attachments/assets/411b5d8b-44ca-451d-bd9c-e40aa2eb4b59" />
+
+Traditional safety applications react after an emergency happens.
+Blackreach works earlier — during uncertainty.
+
+It continuously reasons about:
+
+Where a user is going
+
+What type of environment they are entering
+
+Whether the journey is behaving as expected
+
+How risk evolves minute by minute
+
+Instead of panic buttons and reactive alerts, Blackreach provides calm, context-aware escalation.
+
+It is built for:
+
+Women and children commuting daily
+
+Elderly individuals traveling independently
+
+Travelers in unfamiliar areas
+
+Security teams needing structured situational awareness
+
+Blackreach bridges digital reasoning and physical response — without overwhelming the user.
+
+🧠 Core Idea
+
+Blackreach operates in three intelligent layers:
+
+1️⃣ Context Sensing
+
+Live GPS tracking
+
+500m Lookahead environmental audit
+
+Route intent & deviation awareness
+
+2️⃣ Gemini-Based Reasoning
+
+Risk classification (GREEN / ORANGE / RED)
+
+Adaptive vigilance (dynamic FPS scaling)
+
+Context-aware escalation logic
+
+3️⃣ Human-in-the-Loop Response
+
+Structured reasoning briefs
+
+Subcenter / response activation
+
+Manual or automatic emergency transition
+
+Emergency is treated as a state, not just a button.
+
+
+<img width="1884" height="883" alt="image" src="https://github.com/user-attachments/assets/fc984b1a-56f3-47d2-97fd-9ed50ff76e09" />
+
+Key Capabilities
+
+500m lookahead risk audit
+
+Adaptive monitoring profiles
+
+Gemini contextual reasoning engine
+
+Live visual signal analysis (image-based emergency demo)
+
+Human-backed escalation pipeline
+
+Clean UI transitions without panic-driven interaction
+
+🧠 System Architecture Overview
+User Tracking
+      ↓
+Lookahead Engine
+      ↓
+Gemini Reasoning
+      ↓
+Risk Classification
+      ↓
+UI / Subcenter Action
+Flow Explanation
+
+Tracking captures movement signals.
+
+Lookahead evaluates environmental context.
+
+Gemini synthesizes journey intent + risk signals.
+
+UI transitions based on risk state.
+
+Subcenters activate only when thresholds are crossed.
+
+<img width="1892" height="712" alt="image" src="https://github.com/user-attachments/assets/7b5c55bf-724b-4e4c-a317-515b94f53f17" />
+
+🔧 Backend Setup & Running Instructions
 
 This backend powers Blackreach’s journey reasoning, lookahead analysis, and Gemini-based decision engine.
-It is built with FastAPI and integrates Firebase and Google Vertex AI (Gemini).
 
-Prerequisites
+Built with:
+
+FastAPI
+
+Firebase Realtime Database
+
+Google Vertex AI (Gemini)
+
+📦 Prerequisites
+
+#  I have used the Gemini 3.0 , but it is not in the env file, it is hardcoded in routes files , but for
+fast reasoning forlookahead , I used gemini 2.5
 
 Python 3.10+
 
-Google Cloud project with:
-
-Vertex AI enabled
-
-Service Account JSON key
+Google Cloud project with Vertex AI enabled
 
 Firebase project with Realtime Database enabled
 
-1) Clone & Enter Backend
+Service Account JSON keys for both
+
+1️⃣ Clone & Enter Backend
 git clone <your-repo-url>
 cd backend
-
-2) Create Python Virtual Environment
+2️⃣ Create Python Virtual Environment
 python -m venv .venv
-
 Activate (Windows – PowerShell)
 .\.venv\Scripts\Activate.ps1
 
-
-If activation is blocked, run once:
+If blocked:
 
 Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-
 Activate (macOS / Linux)
 source .venv/bin/activate
-
-3) Install Dependencies
+3️⃣ Install Dependencies
 python -m pip install --upgrade pip
 pip install fastapi uvicorn httpx python-dotenv pydantic firebase-admin google-genai
+4️⃣ Environment Variables (.env)
 
+Create .env in backend root.
 
-These packages cover:
-
-API server
-
-Firebase access
-
-Gemini / Vertex AI calls
-
-Environment configuration
-
-4) Environment Variables (.env)
-
-Create a file named .env in the backend root.
-
-Example .env file
-# ─────────────────────────────
 # Firebase
-# ─────────────────────────────
 FIREBASE_SERVICE_ACCOUNT_PATH=secrets/firebase-service-account.json
 FIREBASE_DATABASE_URL=https://<your-project>.firebaseio.com
 
-# ─────────────────────────────
-# Google Cloud / Vertex AI
-# ─────────────────────────────
-GOOGLE_CLOUD_PROJECT=third-camera-483403-c0
+# Google Cloud
+GOOGLE_CLOUD_PROJECT=your-project-id
 GOOGLE_CLOUD_LOCATION=asia-south1
 
-# Gemini model used for reasoning
+# Gemini Model
 GEMINI_MODEL=gemini-2.5-flash
 
-# Path to Vertex AI service account
+# Vertex AI Service Account
 VERTEX_SA_PATH=secrets/vertex-service-account.json
-
-# Required by Google SDK
 GOOGLE_APPLICATION_CREDENTIALS=backend/secrets/vertex-service-account.json
-
-5) Secrets Directory Structure
-
-Place your service account files here:
-
+5️⃣ Secrets Directory Structure
 backend/
  ├─ secrets/
  │   ├─ firebase-service-account.json
  │   └─ vertex-service-account.json
 
-
-⚠️ Never commit these files to Git
-Add this to .gitignore:
+Add to .gitignore:
 
 secrets/
 .env
-
-6) Run the Backend Server
+6️⃣ Run Backend Server
 uvicorn api.main:app --reload --port 8000
 
-
-If successful, you’ll see:
-
-Uvicorn running on http://127.0.0.1:8000
-
-7) API Docs (Swagger)
-
-Open in browser:
+Access API docs at:
 
 http://localhost:8000/docs
-
-
-You can test:
+Available Endpoints
 
 /booking/confirm
 
@@ -115,51 +190,52 @@ You can test:
 
 /gemini/run/{bookingId}
 
+/video/emergency-demo
 
-Frontend Setup & Run (Vite)
+💻 Frontend Setup (Vite + React)
 
-The Blackreach frontend is a pure Vite + React application.
+The frontend is built using Vite + React.
 
-For demo purposes, no environment variables are required. All API endpoints are either:
+No environment variables are required for demo reliability.
 
-Proxied to the local backend, or
-
-Safely hardcoded for demo reliability
-
-This ensures a smooth experience for demos, judges, and reviewers.
-
-Prerequisites
-
-Make sure you have the following installed:
-
-Node.js 18+
-
-npm
-
-Setup Instructions
-1. Enter the Frontend Directory
+1️⃣ Enter Frontend Directory
 cd frontend
-
-2. Install Dependencies
+2️⃣ Install Dependencies
 npm install
-
-3. Run the Frontend (Vite Dev Server)
+3️⃣ Run Development Server
 npm run dev
 
-
-Vite will start the development server at:
+Runs at:
 
 http://localhost:5173
 
-Backend Connection (No Environment Variables)
-
-The frontend does not use .env files
-
-All API calls assume the backend is running at:
+Backend assumed at:
 
 http://localhost:8000
+🎯 Demo Flow Summary
 
+Confirm journey
 
-During development, Vite automatically proxies API requests to the backend.
+Start tracking
 
-This design intentionally avoids setup friction and configuration error
+Enter security zone
+
+Gemini reasoning triggers
+
+Risk classification updates UI
+
+LiveEye simulates emergency image
+
+System transitions to Emergency state
+
+🧩 Philosophy
+
+Blackreach is not a panic system.
+It is a reasoning system.
+
+It does not wait for danger.
+It watches for deviation.
+
+It does not escalate noise.
+It escalates context.
+
