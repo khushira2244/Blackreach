@@ -1,4 +1,19 @@
 
+## 🔐 Security & Credential Notice
+
+For hackathon deployment purposes, this project originally used Google Cloud and Firebase service account credentials.
+
+⚠️ All previously used service accounts and the associated Google Cloud project have been permanently deleted.
+
+- No active cloud resources are running.
+- Any previously committed credentials have been revoked.
+- To run this project locally, you must create your own Firebase and Google Cloud project and provide your own service account credentials.
+
+This ensures security best practices and prevents misuse of cloud resources.
+
+
+
+
 📘 Blackreach
 What is Blackreach?
 
@@ -198,19 +213,7 @@ The frontend is built using Vite + React.
 
 No environment variables are required for demo reliability.
 
-Security & Credential Notice
 
-For hackathon deployment purposes, this project originally used Google Cloud and Firebase service account credentials.
-
-⚠️ All previously used service accounts and the associated Google Cloud project have been permanently deleted.
-
-No active cloud resources are running.
-
-Any previously committed credentials have been revoked.
-
-To run this project locally, you must create your own Firebase and Google Cloud project and provide your own service account credentials.
-
-This ensures security best practices and prevents misuse of cloud resources.
 
 1️⃣ Enter Frontend Directory
 cd frontend
